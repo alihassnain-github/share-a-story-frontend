@@ -1,10 +1,10 @@
 "use client";
 
-// import { stardom } from "@/app/layout";
 import { RiBookMarkedLine, RiLogoutCircleLine, RiMenu4Fill, RiQuillPenAiLine, RiSearch2Line, RiUserLine } from "@remixicon/react";
 import Link from "next/link";
 import Theme from "./Theme";
 import { useSidebar } from "@/context/sidemenu-provider";
+import { stardom } from "@/lib/fonts/stardom";
 
 export default function Navbar() {
 
@@ -21,7 +21,7 @@ export default function Navbar() {
                 <div className="flex-1">
                     <Link
                         href="/"
-                        className={`tracking-wide font-bold text-xl`}>
+                        className={`${stardom.className} tracking-wide font-bold text-xl`}>
                         ShareAStory
                     </Link>
                 </div>
