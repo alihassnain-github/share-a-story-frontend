@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import ThemeProvider from "@/context/theme-provider";
 
 const satoshi = localFont({
   src: "/fonts/satoshi/Satoshi-Medium.woff2",
@@ -23,9 +24,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="light">
-      <body className={satoshi.className}>
-        {children}
-      </body>
+      <ThemeProvider>
+        <body className={satoshi.className}>
+          {children}
+        </body>
+      </ThemeProvider>
     </html >
   );
 }
