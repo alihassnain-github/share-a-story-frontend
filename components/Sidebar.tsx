@@ -1,7 +1,7 @@
 "use client";
 
 import { useSidebar } from "@/context/sidemenu-provider";
-import { RiArticleLine, RiBookmarkLine, RiHome4Line, RiUser3Line } from "@remixicon/react";
+import { RiArticleLine, RiBookmarkLine, RiHome4Line, RiUser3Line, RiUserFollowLine } from "@remixicon/react";
 import Link from "next/link";
 
 export default function Sidebar() {
@@ -44,6 +44,13 @@ export default function Sidebar() {
                         <Link href={""} prefetch={false}>
                             <RiArticleLine size={18} />
                             Stories
+                        </Link>
+                    </li>
+                    <div className="divider my-0"></div>
+                    <li>
+                        <Link href={""} prefetch={false}>
+                            <RiUserFollowLine size={18} />
+                            Following
                         </Link>
                     </li>
                 </ul>

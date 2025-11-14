@@ -10,7 +10,6 @@ import Paragraph from "@editorjs/paragraph";
 import Header from "@editorjs/header";
 import LinkTool from "@editorjs/link";
 import Embed from "./Embed";
-import styles from "./Editor.module.css";
 
 interface EditorProps {
     data: undefined | OutputData;
@@ -20,10 +19,20 @@ interface EditorProps {
 
 const EDITOR_TOOLS: { [key: string]: ToolConstructable | ToolSettings } = {
     code: Code,
-    header: Header,
+    header: {
+        class: Header as unknown as ToolConstructable,
+        config: {
+            levels: [1, 2],
+            defaultLevel: 1,
+            placeholder: "Title"
+        },
+    },
     paragraph: {
-        class: Paragraph as ToolConstructable,
+        class: Paragraph as unknown as ToolConstructable,
         inlineToolbar: true,
+        config: {
+            placeholder: "Tell your story..."
+        }
     },
     embed: Embed,
     LinkTool: {
@@ -41,6 +50,29 @@ const EDITOR_TOOLS: { [key: string]: ToolConstructable | ToolSettings } = {
     delimiter: Delimiter,
 };
 
+// Initial data structure with title and paragraph blocks
+const INITIAL_DATA: OutputData = {
+    time: Date.now(),
+    blocks: [
+        {
+            id: "title-block",
+            type: "header",
+            data: {
+                text: "",
+                level: 1
+            }
+        },
+        {
+            id: "content-block",
+            type: "paragraph",
+            data: {
+                text: ""
+            }
+        }
+    ],
+    version: "2.28.0"
+};
+
 export default function Editor({ data, onChange, holder }: EditorProps) {
 
     const ref = useRef<EditorJS | null>(null);
@@ -50,14 +82,23 @@ export default function Editor({ data, onChange, holder }: EditorProps) {
         if (!ref.current) {
             const editor = new EditorJS({
                 holder: holder,
-                placeholder: "Tell your story...",
                 tools: EDITOR_TOOLS,
-                data,
+                // Use initial data if no data is provided
+                data: data || INITIAL_DATA,
                 async onChange(api) {
                     const content = await api.saver.save();
-                    // console.log(content, "sdfb");
                     onChange(content);
                 },
+                defaultBlock: "paragraph",
+                onReady: () => {
+                    // Focus on the second block (paragraph) after editor is ready
+                    setTimeout(() => {
+                        const blocks = editor.blocks.getBlocksCount();
+                        if (blocks > 1) {
+                            editor.caret.setToBlock(1, 'start');
+                        }
+                    }, 100);
+                }
             });
             ref.current = editor;
         }
@@ -71,7 +112,7 @@ export default function Editor({ data, onChange, holder }: EditorProps) {
 
     return (
         <>
-            <div id={holder} style={{ width: "100%"}} className={styles.editor}></div>
+            <div id={holder} className="[&_h1]:font-bold [&_h2]:font-bold [&_h1]:text-4xl [&_h2]:text-2xl [&_h1]:tracking-wider [&_h2]:tracking-wider w-full tracking-wide"></div>
         </>
     );
 }

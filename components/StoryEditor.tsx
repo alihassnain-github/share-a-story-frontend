@@ -9,7 +9,21 @@ const Editor = dynamic(() => import("./Editor"), {
 });
 
 export default function StoryEditor() {
-    const [content, setContent] = useState<OutputData | undefined>(undefined);
+    const [content, setContent] = useState<OutputData | undefined>(
+        {
+            blocks: [
+                {
+                    type: "header",
+                    data: { level: 1 },
+                },
+                // optional: second block paragraph
+                {
+                    type: "paragraph",
+                    data: { text: "" },
+                },
+            ],
+        }
+    );
 
     return (
         <Editor
