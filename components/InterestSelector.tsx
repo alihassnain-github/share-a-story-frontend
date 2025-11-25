@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { stardom } from "@/lib/fonts/stardom";
 import { RiAddLine, RiCheckFill } from "@remixicon/react";
+import { handleAPIError } from "@/utils/errorHandler";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const INTERESTS = [
     "Fitness", "AWS", "Flutter", "UX Design", "Spirituality", "Creativity", "Nodejs", "UI", "Defi", "Philosophy",
@@ -18,10 +22,14 @@ const INTERESTS = [
 ];
 
 export default function InterestsSelector() {
+
+    const router = useRouter();
+
     const ITEMS_PER_PAGE = Math.ceil(INTERESTS.length / 3);
 
     const [page, setPage] = useState(0);
     const [selected, setSelected] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false);
 
     const startIndex = page * ITEMS_PER_PAGE;
     const visibleInterests = INTERESTS.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -41,9 +49,30 @@ export default function InterestsSelector() {
         setPage(nextPage);
     };
 
+    async function saveInterests() {
+        try {
+            setLoading(true);
+            const url = `${process.env.NEXT_PUBLIC_BASE_URL}/users/update-interests`;
+            const response = await axios.post(url, { interests: selected }, { withCredentials: true });
+
+            if (response.data?.success) {
+                const { message } = await response.data;
+
+                router.replace("/");
+
+                toast(message, { type: "success" });
+            }
+        } catch (error: unknown) {
+            console.error("Error saving interests: ", error);
+            handleAPIError(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
         <>
-            <div className="flex flex-col justify-center mb-4 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mb-[76px]">
+            <div className="flex flex-col justify-center px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mb-[76px]">
                 <div className="text-center mb-4">
                     <h1 className={`${stardom.className} tracking-wide font-bold lg:text-2xl text-lg`}>
                         Tell us what interests you the most
@@ -81,11 +110,12 @@ export default function InterestsSelector() {
             <footer className="py-4 fixed bottom-0 w-full bg-base-200 border-t border-gray-300 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
                 <div className="flex justify-center">
                     <button
-                        disabled={selected.length < 3}
+                        onClick={saveInterests}
+                        disabled={selected.length < 3 || loading}
                         className="btn btn-neutral font-medium btn-wide btn-sm md:btn-md rounded-full"
                         type="button"
                     >
-                        Continue
+                        {loading && <span className="loading loading-spinner loading-xs"></span>} Continue
                     </button>
                 </div>
             </footer>

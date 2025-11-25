@@ -5,13 +5,37 @@ import Link from "next/link";
 import Theme from "./Theme";
 import { useSidebar } from "@/context/sidemenu-provider";
 import { stardom } from "@/lib/fonts/stardom";
+import { handleAPIError } from "@/utils/errorHandler";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
 
+    const router = useRouter();
+
     const { isOpen, handleToggle } = useSidebar()!;
 
+    async function handleLogout() {
+        try {
+            const url = `${process.env.NEXT_PUBLIC_BASE_URL}/users/logout`;
+            const response = await axios.post(url, undefined, { withCredentials: true });
+
+            if (response.data?.success) {
+                const { message } = await response.data;
+
+                router.replace("/");
+
+                toast(message, { type: "success" });
+            }
+        } catch (error: unknown) {
+            console.error("Error logout: ", error);
+            handleAPIError(error);
+        }
+    }
+
     return (
-        <header className="mb-[64px]">
+        <header className="mb-16">
             <nav className="navbar fixed top-0 w-full z-50 bg-base-200 border-b border-gray-200 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
                 <div className="flex-none">
                     <button className="pe-3 py-2 cursor-pointer" onClick={handleToggle} title={`${isOpen ? "Close Sidebar" : "Open Sidebar"}`} type="button">
@@ -82,7 +106,7 @@ export default function Navbar() {
                                 </a>
                             </li>
                             <li>
-                                <a>
+                                <a onClick={handleLogout}>
                                     <RiLogoutCircleLine size={18} />
                                     Logout
                                 </a>

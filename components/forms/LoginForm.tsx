@@ -1,14 +1,58 @@
 "use client";
 
-import { useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import Link from "next/link";
 import { RiEyeLine, RiEyeOffLine } from "@remixicon/react";
+import axios from "axios";
+import { handleAPIError } from "@/utils/errorHandler";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
+
+    const router = useRouter();
+
+    const [formData, setFormData] = useState({
+        email: "",
+        password: "",
+    });
+
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    function handleChange(e: ChangeEvent<HTMLInputElement>) {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
+
+    async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        try {
+            setLoading(true);
+            const url = `${process.env.NEXT_PUBLIC_BASE_URL}/users/login`;
+            const response = await axios.post(url, formData, { withCredentials: true });
+
+            if (response.data?.success) {
+                const { message } = await response.data;
+
+                const interests: string[] = response.data.data.user.interests;
+
+                if (interests.length === 0) {
+                    router.replace("/interests");
+                } else {
+                    router.replace("/");
+                }
+                toast(message, { type: "success" });
+            }
+        } catch (error: unknown) {
+            console.error("Error login: ", error);
+            handleAPIError(error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     return (
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
                 <label htmlFor="email" className="label">
                     <span className="label-text font-medium">
@@ -21,7 +65,8 @@ export default function LoginForm() {
                     className="input input-bordered w-full"
                     id="email"
                     name="email"
-                    autoComplete="email"
+                    value={formData.email}
+                    onChange={handleChange}
                 />
             </div>
 
@@ -38,7 +83,8 @@ export default function LoginForm() {
                         className="input input-bordered w-full pr-12"
                         id="password"
                         name="password"
-                        autoComplete="new-password"
+                        value={formData.password}
+                        onChange={handleChange}
                     />
                     <button
                         type="button"
@@ -57,8 +103,8 @@ export default function LoginForm() {
                 </Link>
             </p>
 
-            <button type="submit" className="btn btn-neutral min-w-32 font-medium tracking-wide mt-2">
-                Login
+            <button disabled={loading} type="submit" className="btn btn-neutral min-w-32 font-medium tracking-wide mt-2">
+                {loading && <span className="loading loading-spinner loading-xs"></span>} Login
             </button>
 
             <p className="text-sm text-base-content/70 pt-1">

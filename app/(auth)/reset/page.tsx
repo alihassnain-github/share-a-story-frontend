@@ -1,8 +1,20 @@
 import { stardom } from "@/app/layout";
 import ResetPasswordForm from "@/components/forms/ResetPasswordForm";
 import Link from "next/link";
+import { redirect, RedirectType } from "next/navigation";
 
-export default function RegisterPage() {
+export default async function RegisterPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+
+    const token = (await searchParams).token as string;
+
+    if (!token) {
+        redirect("/login", RedirectType.replace);
+    }
+
     return (
         <main>
             <section className="min-h-dvh grid md:grid-cols-1 relative">
@@ -27,7 +39,7 @@ export default function RegisterPage() {
                         </p>
 
                         {/* Rest Form */}
-                        <ResetPasswordForm />
+                        <ResetPasswordForm token={token} />
 
                     </div>
                 </div>

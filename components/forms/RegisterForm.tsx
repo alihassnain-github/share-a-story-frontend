@@ -1,14 +1,54 @@
 "use client";
 
-import { useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import Link from "next/link";
 import { RiEyeLine, RiEyeOffLine } from "@remixicon/react";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { handleAPIError } from "@/utils/errorHandler";
+import { useRouter } from "next/navigation";
 
 export default function RegisterForm() {
+
+    const router = useRouter();
+
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+    });
+
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    function handleChange(e: ChangeEvent<HTMLInputElement>) {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
+
+    async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        try {
+            setLoading(true);
+            const url = `${process.env.NEXT_PUBLIC_BASE_URL}/users/signup`;
+            const response = await axios.post(url, formData, { withCredentials: true });
+
+            if (response.data?.success) {
+                const { message } = await response.data;
+
+                router.replace("/verify");
+                toast(message, { type: "success" });
+            }
+        } catch (error: unknown) {
+            console.error("Error register: ", error);
+            handleAPIError(error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     return (
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label htmlFor="firstName" className="label">
@@ -19,11 +59,10 @@ export default function RegisterForm() {
                     <input
                         type="text"
                         required
-                        placeholder=""
                         className="input input-bordered w-full"
                         id="firstName"
                         name="firstName"
-                        autoComplete="given-name"
+                        onChange={handleChange}
                     />
                 </div>
                 <div>
@@ -38,7 +77,7 @@ export default function RegisterForm() {
                         className="input input-bordered w-full"
                         id="lastName"
                         name="lastName"
-                        autoComplete="family-name"
+                        onChange={handleChange}
                     />
                 </div>
             </div>
@@ -55,7 +94,7 @@ export default function RegisterForm() {
                     className="input input-bordered w-full"
                     id="email"
                     name="email"
-                    autoComplete="email"
+                    onChange={handleChange}
                 />
             </div>
 
@@ -71,8 +110,9 @@ export default function RegisterForm() {
                         required
                         className="input input-bordered w-full pr-12"
                         id="password"
+                        minLength={8}
                         name="password"
-                        autoComplete="new-password"
+                        onChange={handleChange}
                     />
                     <button
                         type="button"
@@ -85,8 +125,8 @@ export default function RegisterForm() {
                 </div>
             </div>
 
-            <button type="submit" className="btn btn-neutral min-w-32 font-medium tracking-wide mt-2">
-                Next
+            <button type="submit" disabled={loading} className="btn btn-neutral min-w-32 font-medium tracking-wide mt-2">
+                {loading && <span className="loading loading-spinner loading-xs"></span>} Next
             </button>
 
             <p className="text-sm text-base-content/70 pt-1">

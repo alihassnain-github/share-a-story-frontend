@@ -1,2 +1,8 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+.Toastify__toast,
+.Toastify__toast-body,
+.Toastify__toast-container {
+    font-family: var(--font-satoshi), 'Satoshi', sans-serif !important;
+}

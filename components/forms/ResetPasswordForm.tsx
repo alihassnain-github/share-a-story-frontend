@@ -1,16 +1,59 @@
 "use client";
 
-import { useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { RiEyeLine, RiEyeOffLine } from "@remixicon/react";
+import axios from "axios";
+import { handleAPIError } from "@/utils/errorHandler";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
-export default function ResetPasswordForm() {
+interface ResetPasswordFormProps {
+    token: string;
+}
+
+export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
+
+    const router = useRouter();
+
+    const [formData, setFormData] = useState({
+        password: "",
+        confirmPassword: "",
+    });
+
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+    const [loading, setLoading] = useState(false);
+
+    function handleChange(e: ChangeEvent<HTMLInputElement>) {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
+
+    async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        try {
+            setLoading(true);
+            const url = `${process.env.NEXT_PUBLIC_BASE_URL}/users/reset-password`;
+            const response = await axios.post(url, { ...formData, token }, { withCredentials: true });
+
+            if (response.data?.success) {
+                const { message } = await response.data;
+
+                router.replace("/login");
+                toast(message, { type: "success" });
+            }
+        } catch (error: unknown) {
+            console.error("Error reset password: ", error);
+            handleAPIError(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
-                <label htmlFor="newPassword" className="label">
+                <label htmlFor="password" className="label">
                     <span className="label-text font-medium">
                         New Password *
                     </span>
@@ -20,8 +63,9 @@ export default function ResetPasswordForm() {
                         type={showPassword ? "text" : "password"}
                         required
                         className="input input-bordered w-full pr-12"
-                        id="newPassword"
-                        name="newPassword"
+                        id="password"
+                        name="password"
+                        onChange={handleChange}
                     />
                     <button
                         type="button"
@@ -35,7 +79,7 @@ export default function ResetPasswordForm() {
             </div>
 
             <div>
-                <label htmlFor="confirmNewPassword" className="label">
+                <label htmlFor="confirmPassword" className="label">
                     <span className="label-text font-medium">
                         Confirm New Password *
                     </span>
@@ -45,8 +89,9 @@ export default function ResetPasswordForm() {
                         type={showConfirmPassword ? "text" : "password"}
                         required
                         className="input input-bordered w-full pr-12"
-                        id="confirmNewPassword"
-                        name="confirmNewPassword"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        onChange={handleChange}
                     />
                     <button
                         type="button"
@@ -59,8 +104,8 @@ export default function ResetPasswordForm() {
                 </div>
             </div>
 
-            <button type="submit" className="btn btn-neutral min-w-32 font-medium tracking-wide mt-2">
-                Reset Password
+            <button disabled={loading} type="submit" className="btn btn-neutral min-w-32 font-medium tracking-wide mt-2">
+                {loading && <span className="loading loading-spinner loading-xs"></span>} Reset Password
             </button>
         </form>
     )

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import ThemeProvider from "@/context/theme-provider";
+import { ToastContainer } from "react-toastify";
 
 const satoshi = localFont({
   src: "/fonts/satoshi/Satoshi-Medium.woff2",
@@ -24,11 +25,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="light">
-      <ThemeProvider>
-        <body className={satoshi.className}>
+      <body className={satoshi.className}>
+        <ThemeProvider>
           {children}
-        </body>
-      </ThemeProvider>
+          <ToastContainer
+            position="bottom-right"
+            autoClose={5000}
+            hideProgressBar
+            newestOnTop={false}
+            closeOnClick={false}
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+          />
+        </ThemeProvider>
+      </body>
     </html >
   );
 }
