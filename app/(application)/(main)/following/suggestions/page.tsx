@@ -50,14 +50,18 @@ const topics = [
     },
 ]
 
-export default function FollowingPage() {
+export default function SuggestionsPage() {
     return (
         <section className="min-h-dvh px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 md:py-6 py-4">
             <div>
                 <div className="tabs tabs-border">
-                    <Link href={"/following"} prefetch={false} role="tab" className="tab tab-active">Following</Link>
+                    <Link href={"/following"} prefetch={false} role="tab" className="tab">Following</Link>
+
+                    <Link href={"/following/readinghistory"} prefetch={false} role="tab" className="tab">Reading history</Link>
+
+                    <Link href={"/following/suggestions"} prefetch={false} role="tab" className="tab tab-active">Suggestions</Link>
                     <div className="tab-content bg-base-100 border-base-300 p-6">
-                        <h5 className="font-bold tracking-wide">Writers</h5>
+                        <h5 className="font-bold tracking-wide">Writers to follow</h5>
                         <div>
                             {writers.map((writer) => (
                                 <div
@@ -86,28 +90,26 @@ export default function FollowingPage() {
                                     {/* Follow button */}
                                     <div className="shrink-0 self-start">
                                         <button className="btn btn-neutral btn-outline font-medium rounded-full btn-sm">
-                                            Following
+                                            Follow
                                         </button>
                                     </div>
                                 </div>
                             ))}
                         </div>
                         <div className="divider"></div>
-                        <h5 className="font-bold tracking-wide">03 Topics</h5>
+                        <h5 className="font-bold tracking-wide">Topics to follow</h5>
                         <div>
                             {topics.map((topic) => (
                                 <div
                                     key={topic.id}
                                     className="flex items-start gap-4 max-w-2xl border-b border-gray-200 py-4"
                                 >
-                                    {/* Avatar */}
                                     <div className="shrink-0">
                                         <div className="rounded-full flex items-center justify-center bg-base-300 w-12 h-12 overflow-hidden">
                                             <RiArticleLine size={18} />
                                         </div>
                                     </div>
 
-                                    {/* Name + Bio */}
                                     <div className="flex-1">
                                         <h2 className="font-semibold text-lg tracking-wide">{topic.title}</h2>
                                         <p className="text-gray-500 text-sm">{topic.stories} . {topic.writers}</p>
@@ -116,18 +118,13 @@ export default function FollowingPage() {
                                     {/* Follow button */}
                                     <div className="shrink-0 self-start">
                                         <button className="btn btn-neutral btn-outline font-medium rounded-full btn-sm">
-                                            Following
+                                            Follow
                                         </button>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
-
-                    <Link href={"/following/readinghistory"} prefetch={false} role="tab" className="tab">Reading history</Link>
-
-                    <Link href={"/following/suggestions"} prefetch={false} role="tab" className="tab">Suggestions</Link>
-
                 </div>
             </div>
         </section>
